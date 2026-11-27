@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer utilities {
+  .no-spinners::-webkit-outer-spin-button,
+  .no-spinners::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .no-spinners {
+    -moz-appearance: textfield;
+  }
+
+  /* Date fields stay typeable but the calendar-picker button is hidden so Tab
+     moves straight between data-entry boxes instead of stopping on the popup. */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+  }
+  input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+}
+
+/* ── Export PDF / print ───────────────────────────────────────────────────────
+   Printing is always black ink on white paper, whatever theme is on screen: the dark
+   palette's near-white text would otherwise print as white on white once the browser
+   stops printing page backgrounds. The charts that print come from PrintCharts.tsx,
+   never from the interactive one. */
+@page {
+  margin: 10mm;
+}
+
+@media print {
+  html,
+  body {
+    background: #ffffff !important;
+  }
+
+  /* Screen padding would push a full-width chart past the edge of the page. */
+  #pdf-export-area {
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  .pdf-page,
+  .pdf-page * {
+    color: #000000 !important;
+    border-color: #94a3b8 !important;
+  }
+
+  /* One printed block to a page - the data table, then each chart - and the break goes
+     between the blocks rather than after the last one, so there is no trailing blank page. */
+  .pdf-page {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .pdf-page + .pdf-page {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  /* Two charts share a page. Each one (heading, chart and legend) stays in one piece, and
+     the pair is spaced apart rather than being separated by a page break. */
+  .pdf-chart {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .pdf-chart + .pdf-chart {
+    margin-top: 6mm;
+  }
+}
